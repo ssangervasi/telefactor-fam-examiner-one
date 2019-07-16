@@ -93,7 +93,7 @@ module Hatchery
       @gen_count = gen_count
     end
 
-    # Consructs a dense family tree @gen_count tall, starting with one child
+    # Constructs a dense family tree @gen_count tall, starting with one child
     #   and expanding up to their parents, grandparents, great-grandparents...
     def great_big_family
       @great_big_family ||= Fam::Family.new(people: generations.flatten).tap do |family|
