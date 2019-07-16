@@ -15,7 +15,7 @@ RSpec.describe Fam do
       end
 
       it 'returns no error' do
-        expect(result.error).to be('')
+        expect(result.error).to eq('')
       end
 
       it 'returns a diminutive status' do
@@ -44,18 +44,37 @@ RSpec.describe Fam do
 
   describe 'get_person' do
     describe 'when the area is deserted of people' do
-      let(:result) { subject.get_person(input_path: input_path, person_name: '🕵') }
+      let(:result) { subject.get_person(input_path: output_path, person_name: '🕵') }
 
       it 'returns an error' do
         expect(result.error).to include("No such person '🕵' in family")
       end
 
       it 'returns no output' do
-        expect(result.output).to be('')
+        expect(result.output).to eq('')
       end
 
       it 'returns a positive status' do
         expect(result.status).to be > 0
+      end
+    end
+
+    describe 'when the person exists' do
+      let(:result) do
+        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
+        subject.get_person(input_path: output_path, person_name: '🕵')
+      end
+
+      it 'returns no error' do
+        expect(result.error).to eq('')
+      end
+
+      it 'returns the person' do
+        expect(result.output).to eq('🕵')
+      end
+
+      it 'returns a positive status' do
+        expect(result.status).to be < 1
       end
     end
   end
