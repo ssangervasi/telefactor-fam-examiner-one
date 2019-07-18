@@ -8,6 +8,9 @@ RSpec.describe Fam do
   let(:input_path) { tempdir_pathname.join('family-in.json') }
   let(:output_path) { tempdir_pathname.join('family-out.json') }
 
+  SUCCESS_CODE = 0
+  ERROR_CODE = 1
+
   describe 'add_person' do
     shared_examples_for 'successful addition' do
       it 'returns a success message' do
@@ -18,8 +21,8 @@ RSpec.describe Fam do
         expect(result.error).to eq('')
       end
 
-      it 'returns a diminutive status' do
-        expect(result.status).to be < 1
+      it 'returns a SUCCESS_CODE status' do
+        expect(result.status).to be SUCCESS_CODE
       end
     end
 
@@ -50,12 +53,8 @@ RSpec.describe Fam do
         expect(result.error).to include("No such person '🕵' in family")
       end
 
-      it 'returns no output' do
-        expect(result.output).to eq('')
-      end
-
-      it 'returns a positive status' do
-        expect(result.status).to be > 0
+      it 'returns an ERROR_CODE status' do
+        expect(result.status).to be ERROR_CODE
       end
     end
 
@@ -73,8 +72,8 @@ RSpec.describe Fam do
         expect(result.output).to eq('🕵')
       end
 
-      it 'returns a diminutive status' do
-        expect(result.status).to be < 1
+      it 'returns a SUCCESS_CODE status' do
+        expect(result.status).to be SUCCESS_CODE
       end
     end
   end
@@ -98,8 +97,8 @@ RSpec.describe Fam do
         expect(result.output).to eq('')
       end
 
-      it 'returns a positive status' do
-        expect(result.status).to be > 0
+      it 'returns an ERROR_CODE status' do
+        expect(result.status).to be ERROR_CODE
       end
     end
 
@@ -131,8 +130,8 @@ RSpec.describe Fam do
         expect(result.output).to eq('')
       end
 
-      it 'returns a positive status' do
-        expect(result.status).to be > 0
+      it 'returns an ERROR_CODE status' do
+        expect(result.status).to be ERROR_CODE
       end
     end
 
@@ -155,8 +154,8 @@ RSpec.describe Fam do
         expect(result.output).to eq('')
       end
 
-      it 'returns a positive status' do
-        expect(result.status).to be > 0
+      it 'returns an ERROR_CODE status' do
+        expect(result.status).to be ERROR_CODE
       end
     end
 
@@ -185,8 +184,8 @@ RSpec.describe Fam do
         expect(result.output).to eq('Added 🔎 & 🔍 as parents of 🕵')
       end
 
-      it 'returns a diminutive status' do
-        expect(result.status).to be < 1
+      it 'returns a SUCCESS_CODE status' do
+        expect(result.status).to be SUCCESS_CODE
       end
     end
 
@@ -203,11 +202,7 @@ RSpec.describe Fam do
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.output).to eq('Added 🕵 & 🕵 as parents of 🕵')
-      end
-
-      it 'returns no error' do
-        expect(result.error).to eq('')
+        expect(result.status).to be SUCCESS_CODE
       end
     end
 
@@ -224,11 +219,7 @@ RSpec.describe Fam do
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.output).to eq('Added 🕵 as parents of 🕵')
-      end
-
-      it 'returns no error' do
-        expect(result.error).to eq('')
+        expect(result.status).to be SUCCESS_CODE
       end
     end
 
@@ -245,11 +236,7 @@ RSpec.describe Fam do
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.output).to eq('Added  as parents of 🕵')
-      end
-
-      it 'returns no error' do
-        expect(result.error).to eq('')
+        expect(result.status).to be SUCCESS_CODE
       end
     end
 
@@ -280,13 +267,8 @@ RSpec.describe Fam do
       end
 
       it 'is a valid means of reproduction' do
-        expect(result1.output).to eq('Added 🔎 as parents of 🕵')
-        expect(result2.output).to eq('Added 🕵 as parents of 🔎')
-      end
-
-      it 'returns no error' do
-        expect(result1.error).to eq('')
-        expect(result2.error).to eq('')
+        expect(result1.status).to be SUCCESS_CODE
+        expect(result2.status).to be SUCCESS_CODE
       end
     end
   end
