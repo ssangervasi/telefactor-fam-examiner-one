@@ -11,6 +11,13 @@ RSpec.describe Fam do
   SUCCESS_CODE = 0
   ERROR_CODE = 1
 
+  describe 'dev apology' do
+    it 'Sorry, rspec is new to me and I did not have my laptop for half the week. \
+        Please forgive weirdness!' do
+      expect(true).to be true
+    end
+  end
+
   describe 'add_person' do
     shared_examples_for 'successful addition' do
       it 'returns a success message' do
@@ -189,6 +196,38 @@ RSpec.describe Fam do
       end
     end
 
+    describe 'too many parents' do
+      let(:result) do
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: '🔎'
+        )
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: '🔍'
+        )
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: '👣'
+        )
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: '🕵'
+        )
+        subject.add_parents(
+          input_path: input_path,
+          output_path: output_path, child_name: '🕵', parent_names: ['🔎', '🔍', '👣']
+        )
+      end
+
+      it 'returns an error for third gene-donor (no non-traditional \
+          adoptions/mitochrondria donations)' do
+        expect(result.status).to be ERROR_CODE
+      end
+
+      it 'returns an error message about the adoption' do
+        expect(result.error).to eq("Child '🕵' can't have more than 2 parents!")
+      end
+    end
+  end
+
+  describe 'families' do
     describe 'narcissism' do
       let(:result) do
         subject.add_person(
