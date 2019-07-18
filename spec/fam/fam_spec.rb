@@ -19,13 +19,13 @@ RSpec.describe Fam do
   end
 
   describe 'add_person' do
-    shared_examples_for 'successful addition' do
-      it 'returns a success message' do
-        expect(result.output).to include('Added person: 🕵')
+    describe 'adding a person' do
+      let(:result) do
+        subject.add_person(input_path: input_path, output_path: input_path, person_name: '🕵')
       end
 
-      it 'returns no error' do
-        expect(result.error).to eq('')
+      it 'returns a success message' do
+        expect(result.output).to include('Added person: 🕵')
       end
 
       it 'returns a SUCCESS_CODE status' do
@@ -33,28 +33,19 @@ RSpec.describe Fam do
       end
     end
 
-    describe 'adding a person' do
-      let(:result) do
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-      end
-      it_behaves_like 'successful addition'
-    end
-
     describe 'falling asleep on the keyboard and repeatedly adding the person' do
-      let(:result) do
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
+      it 'raises a DuplicatePerson error' do
+        expect do
+          subject.add_person(input_path: input_path, output_path: input_path, person_name: '🕵')
+          subject.add_person(input_path: input_path, output_path: input_path, person_name: '🕵')
+        end.to raise_error(Fam::Family::Errors::DuplicatePerson)
       end
-      it_behaves_like 'successful addition'
     end
   end
 
   describe 'get_person' do
     describe 'when the area is deserted of people' do
-      let(:result) { subject.get_person(input_path: output_path, person_name: '🕵') }
+      let(:result) { subject.get_person(input_path: input_path, person_name: '🕵') }
 
       it 'returns an error' do
         expect(result.error).to include("No such person '🕵' in family")
@@ -67,8 +58,8 @@ RSpec.describe Fam do
 
     describe 'when the person exists' do
       let(:result) do
-        subject.add_person(input_path: input_path, output_path: output_path, person_name: '🕵')
-        subject.get_person(input_path: output_path, person_name: '🕵')
+        subject.add_person(input_path: input_path, output_path: input_path, person_name: '🕵')
+        subject.get_person(input_path: input_path, person_name: '🕵')
       end
 
       it 'returns no error' do
@@ -90,7 +81,7 @@ RSpec.describe Fam do
       let(:result) do
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path,
+          output_path: input_path,
           child_name: '🕵',
           parent_names: ['🔎', '🔍']
         )
@@ -123,7 +114,7 @@ RSpec.describe Fam do
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path,
+          output_path: input_path,
           child_name: '🕵',
           parent_names: ['🔎', '🔍']
         )
@@ -149,7 +140,7 @@ RSpec.describe Fam do
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🔎', '🔍']
+          output_path: input_path, child_name: '🕵', parent_names: ['🔎', '🔍']
         )
       end
 
@@ -179,7 +170,7 @@ RSpec.describe Fam do
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🔎', '🔍']
+          output_path: input_path, child_name: '🕵', parent_names: ['🔎', '🔍']
         )
       end
 
@@ -212,7 +203,7 @@ RSpec.describe Fam do
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🔎', '🔍', '👣']
+          output_path: input_path, child_name: '🕵', parent_names: ['🔎', '🔍', '👣']
         )
       end
 
@@ -228,54 +219,80 @@ RSpec.describe Fam do
   end
 
   describe 'families' do
+    describe 'nuclear' do
+      before do
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: 'Grandfather A'
+        )
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: 'Grandmother A'
+        )
+        subject.add_person(
+          input_path: input_path, output_path: input_path, person_name: 'A'
+        )
+        subject.add_parents(
+          input_path: input_path,
+          output_path: input_path,
+          child_name: 'A',
+          parent_names: ['Grandfather A', 'Grandmother A']
+        )
+      end
+
+      it 'returns parents of father correctly' do
+        result = subject.get_parents(input_path: input_path, child_name: 'A')
+        expect(result.status).to be SUCCESS_CODE
+        expect(result.output).to eq "Grandfather A\nGrandmother A"
+      end
+    end
+
     describe 'narcissism' do
-      let(:result) do
+      let(:create_family) do
         subject.add_person(
           input_path: input_path,
           output_path: input_path, person_name: '🕵'
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🕵', '🕵']
+          output_path: input_path, child_name: '🕵', parent_names: ['🕵', '🕵']
         )
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.status).to be SUCCESS_CODE
+        expect(create_family.status).to be SUCCESS_CODE
       end
     end
 
     describe 'parthenogenesis' do
-      let(:result) do
+      let(:create_family) do
         subject.add_person(
           input_path: input_path,
           output_path: input_path, person_name: '🕵'
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🕵']
+          output_path: input_path, child_name: '🕵', parent_names: ['🕵']
         )
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.status).to be SUCCESS_CODE
+        expect(create_family.status).to be SUCCESS_CODE
       end
     end
 
     describe 'spontaneous generation' do
-      let(:result) do
+      let(:create_family) do
         subject.add_person(
           input_path: input_path,
           output_path: input_path, person_name: '🕵'
         )
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: []
+          output_path: input_path, child_name: '🕵', parent_names: []
         )
       end
 
       it 'is a valid means of reproduction' do
-        expect(result.status).to be SUCCESS_CODE
+        expect(create_family.status).to be SUCCESS_CODE
       end
     end
 
@@ -291,23 +308,23 @@ RSpec.describe Fam do
         )
       end
 
-      let(:result1) do
+      let(:create_family1) do
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🕵', parent_names: ['🔎']
+          output_path: input_path, child_name: '🕵', parent_names: ['🔎']
         )
       end
 
-      let(:result2) do
+      let(:create_family2) do
         subject.add_parents(
           input_path: input_path,
-          output_path: output_path, child_name: '🔎', parent_names: ['🕵']
+          output_path: input_path, child_name: '🔎', parent_names: ['🕵']
         )
       end
 
       it 'is a valid means of reproduction' do
-        expect(result1.status).to be SUCCESS_CODE
-        expect(result2.status).to be SUCCESS_CODE
+        expect(create_family1.status).to be SUCCESS_CODE
+        expect(create_family2.status).to be SUCCESS_CODE
       end
     end
   end
